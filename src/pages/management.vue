@@ -298,6 +298,10 @@ export default {
 
   watch: {
     searchInput(newValue, oldValue){//即时搜索，监听搜索框变化，每隔500ms发送请求
+        // yezi ---------------
+        this.queryObj.pageSize = 99999;
+        this.queryObj.pageIndex = 1;
+        // -----------------
 
         clearTimeout(timer);
         if(newValue.trim() !==oldValue.trim())
