@@ -13,15 +13,15 @@
         <el-alert :title="errMsg" type="error" style="height:40px" v-if="errMsg"></el-alert>
         <div class="input-div">
                 <span class="icon">♙</span>
-                <input id="login_user" type="text" autocomplete="off" name="username" v-model="user.name"></input>
+                <input id="login_user" class="input" type="text" autocomplete="off" name="username" v-model="user.name"></input>
             </div>
             <div class="input-div">
                 <span class="icon">♖</span>
-                <input id="login_key" type="password" autocomplete="off" name="password" v-model="user.password" @keyup.enter="login"></input>
+                <input id="login_key" class="input" type="password" autocomplete="off" name="password" v-model="user.password" @keyup.enter="login"></input>
             </div>
         <button class="button" @click="login">登录</button>
     </div>
-
+    <!--img src="../assets/images/login-background.png" style="position:fixed;top:0;left:0;;z-index:-999"/-->
   </div>
 
 
@@ -75,13 +75,4 @@ export default {
 
 <style>
 
-body{
-    background:url(../assets/images/login-background.png);
-    min-width:1366px;
-    min-height:650px;
-}
-
-.button:active{
-    background:rgb(255,105,48);
-}
 </style>
