@@ -3,7 +3,6 @@
 @import "./assets/styles/fonts/iconfont.css";
 @import './assets/styles/components/index.scss';
 @import './assets/styles/pages/index.scss';
-
 </style>
 
 <template>
@@ -27,5 +26,3 @@ export default {
     }
   }
 </script>
-
-

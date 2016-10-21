@@ -25,11 +25,6 @@ let route = [
                   name: '统计分析',
                   component: require('./pages/analysis.vue'),
             },
-             {
-                  path: 'info-typein',
-                  name: '信息录入',
-                  component: require('./pages/info-typein.vue'),
-            },
             {
                   path: 'evolve',
                   name: '关键词演化',

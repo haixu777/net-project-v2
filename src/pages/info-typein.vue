@@ -115,6 +115,7 @@ export default {
         console.log(file, fileList);
     },
     handlePreview(file) {
+        console.log(file);
         this.showMessage("文件上传成功","success");
     },
 
@@ -134,7 +135,7 @@ export default {
         // this.userChoice.file = file;
         // return false;
         if(file)
-          this.showMessage("文件上传成功","success");
+          this.showMessage("加载成功，请上传！","success");
         const that = this;
         return new Promise((resolve,reject)=>{
             that.$once("upload",resolve);
@@ -155,7 +156,7 @@ export default {
 
           return;
         }
-
+        console.log(this.userChoice);
         this.$emit("upload");
 
 /*

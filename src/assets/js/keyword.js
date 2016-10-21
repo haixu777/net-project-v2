@@ -7,40 +7,41 @@ var keyword = function(option){
 	var _row = [];
 	var _system = option.export_system;
 	var choseSystem = [];
-	
+	var topic = option.topic || "";
+
 	(function _init(){
 		var c = $("#"+_container);
 		c.empty();
 		var divList = [];
 		divList.push($("<div class='filter-div'>专题词名称：<input id='keyword_name'></input></div>"));
 		divList.push($("<div class='filter-div'>配置导出系统：<button id='config_button' class='keyword-button'>配置导出系统</button><span id='show_sys'></span></div>"));
-		
+
 		for(var i=0;i<divList.length;i++){
 			$("#"+_container).append(divList[i]);
 		}
 
 		var table = $("<table id='keyword_table' class='keyword-table'><thead><tr><th>序号</th><th>关键词</th><th>去除词</th><th>操作</th></tr></thead><tbody></tbody></table>");
 		c.append(table);
-		
+
 		var o = {
 			"container":"keyword_table",
 			"num":_rowNum++,
 		}
 		_row.push( new keywordTable(o) );
-		
+
 		c.append("<div style='margin-top:10px;padding-left:10px'><button id='add_button' class='keyword-button'>添加规则</button><button id='save_button' class='keyword-button'>保存规则</button><button id='export_button' class='keyword-button' style='float:right'>导出到文件</button><button id='export_system_button' class='keyword-button' style='float:right'>导出到系统</button></div>");
-		
+
 		$("#add_button").on("click",addRow);
 		$("#save_button").on("click",save);
 		$("#export_button").on("click",export_keyword);
 		$("#config_button").on("click",config_keyword);
 		$("#export_system_button").on("click",export_system_keyword);
-		
+
 		if(_id != ""){
 			load_data();
 		}
 	})();
-	
+
 	function load_data(){
 		$.ajax({
 			url:"/keyword/loadKeyword",
@@ -52,7 +53,7 @@ var keyword = function(option){
 			success:function(tempData){
 				var name = tempData.keywordPackage.name;
 				var data = tempData.keywordPackage.data;
-				
+
 				$("#keyword_name").val(name);
 				for(var i=0;i<data.length;i++){
 					addRow();
@@ -64,22 +65,22 @@ var keyword = function(option){
 			}
 		});
 	}
-	
+
 	function config_keyword(){
 		choseSystem = [];
-			
+
 		var bg = $("<div class='tip-bg'></div>");
 		var tip = $("<div class='tip'><div id='button_cancle' class='tip-button'>取消</div><div id='button_ok' class='tip-button'>确定</div></div>");
-		
+
 		var sysList = [];
 		for(var i=0;i<_system.length;i++){
 			sysList.push($("<input type='checkbox' name='chose_mode' value='"+_system[i].id+"'>"+_system[i].name+"</input></br>"))
 			tip.append(sysList[i]);
 		}
-		
+
 		bg.append(tip);
 		$("body").append(bg);
-		
+
 		$("#button_cancle").on("click",function(){
 			bg.remove();
 		});
@@ -98,7 +99,7 @@ var keyword = function(option){
 			bg.remove();
 		});
 	}
-	
+
 	function export_system_keyword(){
 		if(choseSystem.length == 0)
 			alert("请配置下发系统");
@@ -110,24 +111,35 @@ var keyword = function(option){
 				if(data["去除词"].length != 0 && data["关键词"].length != 0){
 					if(data["关键词"][0].length != 0)
 						temp.push(data);
-				}			
+				}
 			}
 
 			var tempSystem = [];
 			for(var i=0;i<choseSystem.length;i++){
 				tempSystem.push(choseSystem[i].id);
 			}
-			
+
 			tempObject.data = temp;
+			var dataTemp = {};
+			if(_id != ""){
+				dataTemp = {
+					id:_id,
+					keywordPackage: tempObject,
+					system:tempSystem
+				}
+			}else{
+				dataTemp = {
+					name:$("#"+keyword_name).val(),
+					topic:topic,
+					keywordPackage: tempObject,
+					system:tempSystem
+				}
+			}
 			$.ajax({
 				url:"/keyword/saveKeyword",
 				type:"post",
 				contentType:'application/json',
-				data:JSON.stringify({
-					id:_id,
-					keywordPackage: tempObject,
-					system:tempSystem
-				}),
+				data:JSON.stringify(dataTemp),
 				success:function(d){
 					if(typeof(d) == "string")
 						d = JSON.parse(d);
@@ -142,7 +154,7 @@ var keyword = function(option){
 			});
 		}
 	}
-	
+
 	function addRow(){
 		var o = {
 			"container":"keyword_table",
@@ -154,7 +166,7 @@ var keyword = function(option){
 		}
 
 	}
-	
+
 	function toFan(){
 		for(var i=0;i<_row.length;i++){
 			var quchu = _row[i].total()["去除词"].split(" ");
@@ -162,18 +174,18 @@ var keyword = function(option){
 			for(var j=0;j<_row[i].total()["关键词"].length;j++){
 				guanjian.push( _row[i].total()["关键词"][j].split(" "));
 			}
-			
+
 			for(var j=0;j<quchu.length;j++){
 				quchu[j] = traditionalized(quchu[j]);
 			}
 			for(var j=0;j<guanjian.length;j++){
 				for(var k=0;k<guanjian[j].length;k++){
 					guanjian[j][k] = traditionalized(guanjian[j][k]);
-				}				
+				}
 			}
 		}
 	}
-	
+
 	function save(){
 		var tempObject = {};
 		var temp = [];
@@ -182,20 +194,29 @@ var keyword = function(option){
 			if(data["去除词"].length != 0 && data["关键词"].length != 0){
 				if(data["关键词"][0].length != 0)
 					temp.push(data);
-			}			
+			}
 		}
 
 		tempObject.data = temp;
+		var dataTemp = {};
+		if(_id != ""){
+			dataTemp = {
+				id:_id,
+				keywordPackage: tempObject,
+			}
+		}else{
+			dataTemp = {
+				name:$("#keyword_name").val(),
+				topic:topic,
+				keywordPackage: tempObject,
+			}
+		}
 
 		$.ajax({
 			url:"/keyword/saveKeyword",
 			type:"post",
 			contentType:'application/json; charset=utf-8',
-			data:JSON.stringify({
-				id:_id,
-				keywordPackage: tempObject,
-				system:[]
-			}),
+			data:JSON.stringify(dataTemp),
 			success:function(d){
 				if(typeof(d) == "string")
 					d = JSON.parse(d);
@@ -209,7 +230,7 @@ var keyword = function(option){
 			}
 		});
 	}
-	
+
 	function export_keyword(){
 		var temp = "\ufeff" + $("#keyword_name").val() +"下发词：\n";
 		for(var i=0;i<_row.length;i++){
@@ -225,14 +246,14 @@ var keyword = function(option){
 		temp = encodeURIComponent(temp);
 		var tempLink = $("<a download='data.csv'></a>");
 		tempLink.attr("href","data:text/csv;UTF-8,"+temp);
-		
-		var evt = document.createEvent("MouseEvents"); 
-		evt.initEvent("click", false, false); 
-		tempLink.get(0).dispatchEvent(evt);   
-		
+
+		var evt = document.createEvent("MouseEvents");
+		evt.initEvent("click", false, false);
+		tempLink.get(0).dispatchEvent(evt);
+
 		function comb(arr1,arr2){
 			var temp = [];
-			
+
 			if(arr1.length == 0){
 				temp = arr2;
 			}else{
@@ -244,44 +265,44 @@ var keyword = function(option){
 			}
 			return temp;
 		}
-		
+
 		function out_keyword(list,outlist){
 			for(var n in list){
 				var flag = list[n].replace(" ","").indexOf(outlist);
 				if(flag != -1)
 					list.splice(flag,1);
 			}
-			
+
 			return list;
 		}
 	}
-	
+
 	function keywordTable(option){
 		var _container = option.container;
 		var tbody = $("#"+_container+" tbody");
-		
+
 		var _num = option.num;
-		
+
 		var tr = $("<tr></tr>");
 		var td_num = $("<td>"+(_num+1)+"</td>");
 		var td_keyword_input = $("<td id='keyword_input"+_num+"'style='text-align:center'></td>");
 		var td_keyword_out = $("<td><textarea class='keyword-out-textarea'></textarea></td>");
 		var td_del = $("<td><div class='ui-icon ui-icon-del'></div></td>");
-		
+
 		td_del.on("click",function(){del(_num);});
-		
+
 		tr.append(td_num);
 		tr.append(td_keyword_input);
 		tr.append(td_keyword_out);
 		tr.append(td_del);
-		
+
 		tbody.append(tr);
-		
+
 		var o = {
 			"container":"keyword_input"+_num,
 		}
 		var k = new keywordInput(o);
-		
+
 		function del(_num){
 			tr.remove();
 			//_rowNum--;
@@ -295,27 +316,27 @@ var keyword = function(option){
 				}
 			}
 		}
-		
+
 		this.getNum = function(){
 			return _num;
 		}
-		
+
 		this.total = function(){
 			var temp = {};
 			temp["去除词"] = combWord(td_keyword_out[0].childNodes[0].value);
 			temp["关键词"] = k.total();
 			return temp;
 		}
-		
+
 		this.load_data = function(data){
 			k.load_data(data["关键词"]);
 			td_keyword_out[0].childNodes[0].value = data["去除词"].join(" ");
 		}
-		
+
 		this.updataNum = function(num){
 			td_num[0].innerHTML = num+1;
 		}
-		
+
 		this.updataData = function(data){
 			k.updataData(0,data);
 		}
@@ -323,25 +344,25 @@ var keyword = function(option){
 
 	function keywordInput(option){
 		var _container = option.container;
-		
+
 		var container_div = $("#"+_container);
-		
+
 		container_div.addClass("keyword-input-container");
-		
+
 		var textareaList = [];
 		var textareaAddList = [];
 		var textareaDelList = [];
 		var textareaTurnList = [];
-		
+
 		var d = $("<div class='keyword-input-content'></div>");
 		textareaList.push( $("<textarea class='keyword-textarea' placeholder='请输入关键词'></textarea>") );
 		textareaDelList.push( $("<div class='ui-icon ui-icon-dels'></div>") );
 		textareaTurnList.push( $("<div class='ui-icon ui-icon-turn'></div>") );
 		textareaAddList.push( $("<div class='ui-icon ui-icon-import'></div>") );
-		
+
 		var addButton = $("<span class='keyword-input-button ui-icon ui-icon-add' style='margin-top:10px;'></span>");
 		addButton.on("click",function(){addTextarea();});
-		
+
 		container_div.append(addButton);
 		container_div.prepend(d);
 		for(var i=0;i<textareaList.length;i++){
@@ -349,12 +370,12 @@ var keyword = function(option){
 			d.append(textareaAddList[i]);
 			d.append(textareaTurnList[i]);
 			d.append(textareaDelList[i]);
-			
+
 			textareaTurnList[i].on("click",function(){turn(this);});
 			textareaDelList[i].on("click",function(){del(this);});
 			textareaAddList[i].on("click",function(){add(this);});
-		}	
-		
+		}
+
 		function addTextarea(){
 			if(textareaList.length >= 3){
 				alert("不能新建更多，超过最大限制");
@@ -368,7 +389,7 @@ var keyword = function(option){
 				tempDel.on("click",function(){del(this);});
 				tempTurn.on("click",function(){turn(this);});
 				tempAdd.on("click",function(){add(this);});
-				
+
 				textareaList.push(temp);
 				textareaDelList.push(tempDel);
 				textareaTurnList.push(tempTurn);
@@ -376,13 +397,13 @@ var keyword = function(option){
 				d.append(temp);
 				d.append(tempAdd);
 				d.append(tempTurn);
-				d.append(tempDel);	
-								
+				d.append(tempDel);
+
 				return 1;
 			}
 
 		}
-		
+
 		function del(el){
 			for(var i = 0;i<textareaList.length;i++){
 				if(textareaDelList[i][0] === el){
@@ -397,7 +418,7 @@ var keyword = function(option){
 				}
 			}
 		}
-		
+
 		function turn(el){
 			for(var i = 0;i<textareaList.length;i++){
 				if(textareaTurnList[i][0] === el){
@@ -406,7 +427,7 @@ var keyword = function(option){
 				}
 			}
 		}
-		
+
 		function add(el){
 			for(var i = 0;i<textareaList.length;i++){
 				if(textareaAddList[i][0] === el){
@@ -428,25 +449,25 @@ var keyword = function(option){
 						}
 					});
 					break;
-				}				
+				}
 			}
 		}
-		
+
 		function chose_mode(mode,oldKeyword,textareaChanged){
 			var choseMode = [];
-			
+
 			var bg = $("<div class='tip-bg'></div>");
 			var tip = $("<div class='tip'><div id='button_cancle' class='tip-button'>取消</div><div id='button_ok' class='tip-button'>确定</div></div>");
-			
+
 			var modeList = [];
 			for(var i=0;i<mode.length;i++){
 				modeList.push($("<input type='checkbox' name='chose_mode' value='"+mode[i].value+"'>"+mode[i].text+"</input></br>"))
 				tip.append(modeList[i]);
 			}
-			
+
 			bg.append(tip);
 			$("body").append(bg);
-			
+
 			$("#button_cancle").on("click",function(){
 				bg.remove();
 			});
@@ -458,7 +479,7 @@ var keyword = function(option){
 					};
 				}
 				bg.remove();
-				
+
 				$.ajax({
 					url:"/keyword/turnKeyword",
 					type:"post",
@@ -478,7 +499,7 @@ var keyword = function(option){
 				});
 			});
 		}
-		
+
 		this.total = function(){
 			var temp = [];
 			for(var i=0;i<textareaList.length;i++){
@@ -486,7 +507,7 @@ var keyword = function(option){
 			}
 			return temp;
 		}
-		
+
 		this.load_data = function(data){
 			for(var i=0;i<data.length;i++){
 				if(textareaList[i]){
@@ -498,15 +519,15 @@ var keyword = function(option){
 				}
 			}
 		}
-		
+
 		this.updataData = function(mode,data){
 			/*0 更新 1 追加 2 替换*/
 			if(mode == 0){
 				textareaList[0][0].value = data.join(" ");
 			}else if(mode == 1){
-				
+
 			}else if(mode == 2){
-				
+
 			}
 		}
 	}
@@ -538,8 +559,8 @@ function combWord(str){
 				}else{
 					temp = temp + str[i];
 				}
-			}			
-		}		
+			}
+		}
 	}
 	if(temp != "")
 		arr_temp.push(temp);

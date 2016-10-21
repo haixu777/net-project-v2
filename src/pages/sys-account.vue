@@ -256,6 +256,7 @@ export default {
         editAccountToServer() {
             this.dialogFormVisible = false;
             this.$http.post("sysmgr/account/save",{
+                name: this.formAlignRight.name,
                 id: this.formAlignRight.id,
                 auth: this.formAlignRight.auth,
                 org: this.formAlignRight.org,
