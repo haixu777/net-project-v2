@@ -49,7 +49,7 @@
         </div>
         <div class="table-part clearfix">
             <!-- 按钮组和多选反选 -->
-            <div class="table-actions">
+            <div class="table-actions" v-if="isAdmin">
                 <!-- <el-checkbox class="checkbox mycheckbox" v-model="chooseAll">全选</el-checkbox> -->
                 <el-checkbox class="checkbox mycheckbox" @change='chooseOtherKeywords'>反选</el-checkbox>
                 <el-button-group class="action-group">
@@ -79,7 +79,9 @@
                     </div>
 
                 </el-table-column>
-                <el-table-column property="entryTime" label="录入时间" sortable></el-table-column>
+                <el-table-column inline-template label="录入时间" sortable>
+                    <span>{{ row.entryTime}}</span>
+                </el-table-column>
                 <el-table-column property="assessTime" label="审核时间" sortable></el-table-column>
                 <el-table-column property="source" label="来源" ></el-table-column>
                 <el-table-column  inline-template label="分类" >
@@ -94,7 +96,7 @@
                 </el-table-column>
                 <el-table-column inline-template label="操作">
                     <div>
-                        <div v-show="true">
+                        <div>
                             <div v-if="isAdmin && row.status===0" class="buttongroup-wrapper">
                                 <el-button-group class="action-group">
                                   <el-button type="primary" icon="edit" @click.native="editKeyword($index)" size="mini"></el-button>
@@ -107,8 +109,8 @@
                             </div>
                             <div v-if="!isAdmin && row.status===0" class="buttongroup-wrapper">
                                 <el-button-group>
-                                  <el-button type="primary" icon="edit" size="mini"></el-button>
-                                  <el-button type="primary" icon="delete" size="mini"></el-button>
+                                  <el-button type="primary" icon="edit" size="mini" @click.native="editKeyword($index)"></el-button>
+                                  <el-button type="primary" icon="delete" size="mini" @click.native="deleteKeyword($index)"></el-button>
                                 </el-button-group>
                             </div>
                         </div>
@@ -164,32 +166,21 @@
 <script>
 // import {topics} from '../../utils/mock.js';
 import { urls, statusDict } from '../../utils/constants.js';
-
+import { format } from '../../utils/util.js';
 
 let timer;
 
-// const defaultQueries = {
-//         userid: 1,
-//         pageSize:50,
-//         pageIndex:1,
-//         topic: "习近平",
-//         filterContent: 1,
-//         filterCategory: 1,
-//         filterSelect: "keyword",
-//         filterInput:""
-//     }
 
 export default {
   components: {
   },
 
   created(){
-    //fetch subject and category
-    // !isEditingArr[$index]
   },
 
   beforeMount(){
     console.log("management will mount");
+    // console.log("------",)
 
   },
   mounted(){
@@ -241,12 +232,12 @@ export default {
 
         statusDict,
         keywordList: [] ,
-        isAdmin: true,
         isEditingArr: [],
 
         curPage: 1,
 
         pageSize: 20,
+        totalSize: 1,     //页数
 
         tableSelection:[],
         test: []
@@ -256,16 +247,15 @@ export default {
 
   computed: {
 
-        // topics(){
-        //     return this.$parent.subjects;
-        // },
-
-        // categories(){
-        //     return this.$parent.categories;
-        // },
+        isAdmin(){
+            const user = this.$parent.curUser;
+            return user && user.auth ===0;
+        },
 
         curUserId(){
-            return 1;
+            // return
+            const user = this.$parent.curUser;
+            return user && user.userId;
         },
 
         canBeMounted(){
@@ -274,7 +264,7 @@ export default {
 
         queryObj(){
             return {
-                userId: 1,
+                userId: this.curUserId,
                 pageSize: this.pageSize,
                 pageIndex: this.curPage,
                 subjectId: this.curTopic.id,
@@ -301,12 +291,17 @@ export default {
             }))
         },
         totalCount(){
-            return this.pageSize* this.totalSize;
+            console.log(this.totalSize* this.pageSize);
+            return this.totalSize* this.pageSize;
         }
   },
 
   watch: {
     searchInput(newValue, oldValue){//即时搜索，监听搜索框变化，每隔500ms发送请求
+        // yezi ---------------
+        this.queryObj.pageSize = 99999;
+        this.queryObj.pageIndex = 1;
+        // -----------------
 
         clearTimeout(timer);
         if(newValue.trim() !==oldValue.trim())
@@ -329,6 +324,10 @@ export default {
 
     handleMultipleSelectionChange(val){
         this.tableSelection = val;
+    },
+
+    change2Login(){
+        window.location.hash = "login";
     },
 
     handleCurrentChange(curPage){
@@ -359,10 +358,19 @@ export default {
             this.fullscreenLoading = false;
             // ({totalSize : this.totalSize,keywordList : this.keywordList} = response.body);
             this.totalSize = response.body.totalSize;
-            this.keywordList = response.body.keywordList;
+
+            this.keywordList = response.body.keywordList.map(row=>{
+                let parsedObj = {entryTime: row.entryTime,assessTime: row.assessTime};
+                if(row.entryTime)
+                     parsedObj.entryTime = format(row.entryTime,"yyyy-MM-dd hh:mm");
+                if(row.assessTime)
+                     parsedObj.assessTime = format(row.entryTime,"yyyy-MM-dd hh:mm");
+                return Object.assign({},row,parsedObj);
+            });
+
             //维护keywordList是否在编辑状态
             this.isEditingArr = new Array(this.keywordList.length).fill(false);
-            console.log("keywordList",this.keywordList);
+
         }, (err)=>{
             console.log("error in keywordList",err);
             this.fullscreenLoading = false;
@@ -388,6 +396,7 @@ export default {
             this.showMessage("审核成功","success")
         }).catch(err=>{
             // this.$set(this.keywordList,index,prevRow);
+
             if(cb) cb();
             this.showMessage("审核失败","error")
         })
@@ -496,12 +505,21 @@ export default {
     },
 
     deleteKeyword(index){
-        this.keywordList.splice(index,1);
+
         this.$http.post(urls.delete,{
             keyword: this.keywordList[index].keyword,
             userId: this.curUserId
-        }).then(response=>this.showMessage("删除成功","success"),
-                err=>this.showMessage("删除失败","error"));
+        }).then(response=>{
+            if(response.code && response.code===-2){
+                this.showMessage("您没有权限进行删除","info");
+            }else{
+                this.showMessage("删除成功","success");
+                this.keywordList.splice(index,1);
+            }
+        },
+            err=>this.showMessage("删除失败","error"));
+
+
     },
 
     editKeyword(index){
@@ -536,10 +554,14 @@ export default {
             newWord: this.dialog.form.keyword,
             categories: this.dialog.form.categories
         }).then(response=>{
-            this.showMessage("更新成功","success");
 
-            this.updateTableRow(index,'keyword',this.dialog.form.keyword);
-            this.updateTableRow(index,'categories',this.dialog.form.categories);
+            if(response.code && response.code ===-2)
+                this.showMessage("您没有权限进行修改");
+            else{
+                this.showMessage("更新成功","success");
+                this.updateTableRow(index,'keyword',this.dialog.form.keyword);
+                this.updateTableRow(index,'categories',this.dialog.form.categories);
+            }
 
         }).catch(err=>{
             this.showMessage("更新失败","error");

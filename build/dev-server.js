@@ -69,6 +69,13 @@ app.post("/keyword/turnKeyword",function(req,res){
     res.json(temp);
 });
 
+app.post("/login/in",function(req,res){
+
+    var temp = JSON.parse(fs.readFileSync("./mock/user.json"));
+    res.json(temp);
+});
+
+
 app.post("/keyword/saveKeyword",function(req,res){
     res.json({flag:true});
 })
@@ -135,9 +142,9 @@ app.get("/sysmgr/distribute/query", function(req,res){
 });
 
 app.get("/sysmgr/dict/query", function(req,res){
-    var themeList = JSON.parse(fs.readFileSync("./mock/theme.json"));
-    res.json(themeList);
-})
+    var subjectList = JSON.parse(fs.readFileSync("./mock/theme.json"));
+    res.json(subjectList);
+});
 
 app.get("/sysmgr/dict-category/query", function(req,res){
     var categoryList = JSON.parse(fs.readFileSync("./mock/category_yezi.json"));
