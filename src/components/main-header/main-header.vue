@@ -20,10 +20,8 @@
         <span class="el-dropdown-link">
           <span class="username" >{{curUserName}}</span><i class="el-icon-caret-bottom el-icon-right"></i>
         </span>
-        <el-dropdown-menu slot="dropdown" >
-          <el-dropdown-item @click.native="logOut"
-            v-if="isLogined">退出</el-dropdown-item>
-            <el-dropdown-item v-else >登录</el-dropdown-item>
+        <el-dropdown-menu slot="dropdown" class="dropdown_menu">
+          <el-dropdown-item @click.native="logOut" v-if="isLogined">退出</el-dropdown-item>
         </el-dropdown-menu>
     </el-dropdown>
     </div>
@@ -88,7 +86,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang= "scss">
-
+.dropdown_menu {
+    padding: 0;
+    min-width: 0;
+}
 
 
 

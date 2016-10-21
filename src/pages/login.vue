@@ -17,7 +17,7 @@
             </div>
             <div class="input-div">
                 <span class="icon">♖</span>
-                <input id="login_key" type="password" autocomplete="off" name="password" v-model="user.password"></input>
+                <input id="login_key" type="password" autocomplete="off" name="password" v-model="user.password" @keyup.enter="login"></input>
             </div>
         <button class="button" @click="login">登录</button>
     </div>
