@@ -159,6 +159,10 @@ input{
 	margin-right:20px;
 }
 
+.keyword-button:hover{
+	background:#4e72b8;
+}
+
 /*icon-ui*/
 .ui-icon {
 	width: 30px;

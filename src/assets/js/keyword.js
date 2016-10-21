@@ -106,7 +106,11 @@ var keyword = function(option){
 			var tempObject = {};
 			var temp = [];
 			for(var i=0;i<_row.length;i++){
-				temp.push(_row[i].total());
+				var data = _row[i].total();
+				if(data["去除词"].length != 0 && data["关键词"].length != 0){
+					if(data["关键词"][0].length != 0)
+						temp.push(data);
+				}			
 			}
 
 			var tempSystem = [];
@@ -174,9 +178,13 @@ var keyword = function(option){
 		var tempObject = {};
 		var temp = [];
 		for(var i=0;i<_row.length;i++){
-			temp.push(_row[i].total());
+			var data = _row[i].total();
+			if(data["去除词"].length != 0 && data["关键词"].length != 0){
+				if(data["关键词"][0].length != 0)
+					temp.push(data);
+			}			
 		}
-		
+
 		tempObject.data = temp;
 
 		$.ajax({
@@ -410,7 +418,10 @@ var keyword = function(option){
 							id:_id
 						},
 						success:function(d){
-							textareaList[i].val(textareaList[i].val()+d.join(" ")+" ");
+							if(textareaList[i].val() == "")
+								textareaList[i].val(d.join(" "));
+							else
+								textareaList[i].val(textareaList[i].val()+" "+d.join(" "));
 						},
 						error:function(){
 							alert("导入数据错误");
@@ -459,7 +470,7 @@ var keyword = function(option){
 					success:function(d){
 						if(typeof(d) == "string")
 							d = JSON.parse(d);
-						textareaChanged.val(textareaChanged.val() + d.join(" "));
+						textareaChanged.val(textareaChanged.val() +" "+ d.join(" "));
 					},
 					error:function(){
 						alert("生成衍生词错误");

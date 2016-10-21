@@ -8,7 +8,7 @@
 					<div @click.stop.prevent="add_topic(title)" style="float:right;padding-right:10px;">+</div>
 				</div>
 				<div @click="topic_click(topic,titleList)" v-for="topic in title.children" v-show="title.showflag" class="topic-div pointer" :class="{'topic-current':topic.isCurrent}">
-					{{topic.name}}
+					- {{topic.name}}
 				</div>
 			</div>
 		</div>

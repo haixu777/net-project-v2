@@ -17,8 +17,8 @@
             <li :class="pageList.slice(-1)[0]>=totalSize?'disabled':''"><a href="javascrpt:void(0)" @click="changePagination(1)">&raquo;</a></li>
 
             -->
-            <li v-if="!((curPage>=totalSize-1)||(totalSize<5))"><a href="javascrpt:void(0)">...</a></li>
-            <li :class="curPage>=totalSize?'disabled':''"><a href="javascrpt:void(0)" @click="changePagination(1)">&raquo;</a></li>
+            <!--li v-if="!((curPage>=totalSize-1)||(totalSize<5))"><a href="javascrpt:void(0)">...</a></li-->
+            <li :class="curPage>=totalSize?'disabled':''" @click="changePagination(1)"><a href="javascrpt:void(0)">&raquo;</a></li>
         </ul>
         <span class="input-wrapper">转到第
             <input type="number" min="1" :max="totalSize" class="page-input"
@@ -41,7 +41,7 @@ export default {
     return {
       //toPage:1,
       curPage:1,
-      pageList:[1,2,3,4,5],
+      //pageList:[1,2,3],
     }
   },
 
@@ -54,7 +54,10 @@ export default {
         set:function(page){
           this.curPage = page;
         }
-      }
+      },
+    pageList:function(){
+      return numList(this.totalSize,this.curPage)
+    }
   },
 
   methods:{
@@ -64,17 +67,13 @@ export default {
 
       let toPage = parseInt(this.toPage);
       //if(this.toPage>this.totalSize)
-      if((this.toPage>this.totalSize)||(this.toPage<1))
+      if((toPage>this.totalSize)||(toPage<1))
          return
-      else if(this.toPage>=(this.totalSize-4)){
-        this.pageList = [0,1,2,3,4].map(index=>{return this.totalSize-4+index;});
-        this.clickPage(toPage);
-      }else{
-        this.pageList = [0,1,2,3,4].map(index=>{return toPage+index;});
+      else {
+        this.pageList = numList(this.totalSize,toPage);
+        console.log(toPage);
         this.clickPage(toPage);
       }
-
-
     },
 
     clickPage(page){
@@ -158,6 +157,37 @@ export default {
 
 
   }
+}
+
+function numList(totalSize,flag){
+    var num = 10;
+    var r = Math.floor(num/2);
+    var temp = [];
+
+    if(totalSize>num){
+      if(flag+r <= totalSize && flag-r > 0){
+        for(var i=flag-r-1;i<flag+r;i++){
+          temp.push(i+1);
+        }
+        return temp
+      }else if(flag+r <= totalSize && flag-r <= 0){
+        for(var i=0;i<num;i++){
+          temp.push(i+1);
+        }
+        return temp
+      }else if(flag+r > totalSize && flag-r > 0){
+        for(var i=totalSize-num;i<totalSize;i++){
+          temp.push(i+1);
+        }
+        return temp
+      }
+    }        
+    else{
+      for(var i=0;i<totalSize;i++){
+        temp.push(i+1);
+      }
+      return temp
+    }
 }
 </script>
 
