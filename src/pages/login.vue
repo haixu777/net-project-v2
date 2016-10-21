@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class='img-container' style="width:628px;">
+    <div class='img-container' style="width:628px;margin-top:50px">
         <img src="../assets/images/login-logo.png"/>
     </div>
     <div class='img-container' style="width:682px;margin-top:50px">
@@ -75,4 +75,13 @@ export default {
 
 <style>
 
+body{
+    background:url(../assets/images/login-background.png);
+    min-width:1366px;
+    min-height:650px;
+}
+
+.button:active{
+    background:rgb(255,105,48);
+}
 </style>
