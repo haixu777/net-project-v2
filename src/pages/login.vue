@@ -17,11 +17,11 @@
             </div>
             <div class="input-div">
                 <span class="icon">♖</span>
-                <input id="login_key" class="input" type="password" autocomplete="off" name="password" v-model="user.password"></input>
+                <input id="login_key" class="input" type="password" autocomplete="off" name="password" v-model="user.password" @keyup.enter="login"></input>
             </div>
         <button class="button" @click="login">登录</button>
     </div>
-
+    <!--img src="../assets/images/login-background.png" style="position:fixed;top:0;left:0;;z-index:-999"/-->
   </div>
 
 
