@@ -24,6 +24,7 @@
                     <div class="file-upload form-item">
                         <span class="tag-key">关键词</span>
                         <el-upload
+                          v-if="shouldUpload"
                           action="/sample/upload"
                           type="drag"
                           accept =".xlsx,.doc,.txt,.xls,.docx"
@@ -39,11 +40,20 @@
                           <div class="el-dragger__text">将文件拖到此处，或<em>点击上传</em></div>
                           <div class="el-upload__tip" slot="tip">仅可以接受.doc,.docx,.xls,.xlsx,.txt格式的文件</div>
                         </el-upload>
+                        <el-input
+                            v-else
+                            class="own_textarea"
+                            style="display: inline-block"
+                            type="textarea"
+                            placeholder=""
+                            :autosize="{minRows: 8, maxRows: 15}"
+                            v-model="userChoice.text">
+                        </el-input>
                     </div>
 
                     <div class="button-group form-item">
-                        <el-button size="small" >取消</el-button>
-
+                        <el-button v-show="shouldUpload" size="small" @click.native="editWord">手动编辑</el-button>
+                        <el-button v-show="!shouldUpload" size="small" @click.native="cancelUpload">取消</el-button>
                         <el-tooltip class="item" effect="dark" content="请确保分类及主题已选择" placement="top-start">
                             <el-button type="primary" size="small" :disabled="isUploadDisabled" @click.native="typeinWords">上传</el-button>
                         </el-tooltip>
@@ -80,11 +90,13 @@ export default {
         userChoice:{
             userId: this.$parent.curUser.userId,
             chosenCategories: [],
-            chosenTopic: -1
+            chosenTopic: -1,
+            text: ""
         },
         topics:[],
         categories:[],
         fullscreenLoading: false,
+        shouldUpload: true
         // uploadFunc: null,
     }
   },
@@ -129,11 +141,19 @@ export default {
     // },
 
     saveFileData(file){
-
+        this.shouldUpload = false;
         // debugger;
         // console.log(file);
         // this.userChoice.file = file;
         // return false;
+        var _this = this;
+        var reader = new FileReader();
+        var str = "";
+        reader.onload = function () {
+            that.userChoice.text = this.result;
+        };
+        reader.readAsText(file);
+
         if(file)
           this.showMessage("加载成功，请上传！","success");
         const that = this;
@@ -142,7 +162,12 @@ export default {
         });
 
     },
-
+    cancelUpload() {
+        this.shouldUpload = true;
+    },
+    editWord() {
+        this.shouldUpload = false;
+    },
     handleUploadState(state){
         if(state==="success")
             this.showMessage("关键词录入成功","success");
@@ -157,7 +182,14 @@ export default {
           return;
         }
         console.log(this.userChoice);
-        this.$emit("upload");
+        // this.$emit("upload");
+        this.$http.post(urls.upload,this.userChoice,{
+        })
+        .then((response)=>{
+
+        },((err)=>{
+
+        }))
 
 /*
         const formData = new FormData();
@@ -207,5 +239,7 @@ export default {
 </script>
 
 <style>
-
+.own_textarea textarea {
+    width: 350px;
+}
 </style>
