@@ -38,7 +38,7 @@
                         >
                           <i class="el-icon-upload"></i>
                           <div class="el-dragger__text">将文件拖到此处，或<em>点击上传</em></div>
-                          <div class="el-upload__tip" slot="tip">仅可以接受.doc,.docx,.xls,.xlsx,.txt格式的文件</div>
+                          <!-- <div class="el-upload__tip" slot="tip">仅可以接受.doc,.docx,.xls,.xlsx,.txt格式的文件</div> -->
                         </el-upload>
                         <el-input
                             v-else
@@ -46,13 +46,13 @@
                             style="display: inline-block"
                             type="textarea"
                             placeholder=""
-                            :autosize="{minRows: 8, maxRows: 15}"
+                            :autosize="{minRows: 8, maxRows: 10}"
                             v-model="userChoice.text">
                         </el-input>
                     </div>
 
                     <div class="button-group form-item">
-                        <el-button v-show="shouldUpload" size="small" @click.native="editWord">手动编辑</el-button>
+                        <el-button v-show="shouldUpload" size="small" type="success" @click.native="editWord">手动编辑</el-button>
                         <el-button v-show="!shouldUpload" size="small" @click.native="cancelUpload">取消</el-button>
                         <el-tooltip class="item" effect="dark" content="请确保分类及主题已选择" placement="top-start">
                             <el-button type="primary" size="small" :disabled="isUploadDisabled" @click.native="typeinWords">上传</el-button>
@@ -181,12 +181,18 @@ export default {
 
           return;
         }
-        console.log(this.userChoice);
+        if(!this.userChoice.text.trim().length) {
+            this.showMessage("请上传文件或手动编辑","error");
+            return;
+        }
         // this.$emit("upload");
         this.$http.post(urls.upload,this.userChoice,{
         })
         .then((response)=>{
-
+            this.$notify({
+                type: "success",
+                message: "关键词录入成功"
+            })
         },((err)=>{
 
         }))
@@ -240,6 +246,6 @@ export default {
 
 <style>
 .own_textarea textarea {
-    width: 350px;
+    width: 360px;
 }
 </style>
