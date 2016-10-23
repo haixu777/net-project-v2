@@ -38,7 +38,7 @@
                         >
                           <i class="el-icon-upload"></i>
                           <div class="el-dragger__text">将文件拖到此处，或<em>点击上传</em></div>
-                          <!-- <div class="el-upload__tip" slot="tip">仅可以接受.doc,.docx,.xls,.xlsx,.txt格式的文件</div> -->
+                          <div class="el-upload__tip" slot="tip">目前仅可以接受.txt格式的文件</div>
                         </el-upload>
                         <el-input
                             v-else
@@ -166,6 +166,7 @@ export default {
         this.shouldUpload = true;
     },
     editWord() {
+        this.userChoice.text = '';
         this.shouldUpload = false;
     },
     handleUploadState(state){
@@ -186,7 +187,7 @@ export default {
             return;
         }
         // this.$emit("upload");
-        this.$http.post(urls.upload,this.userChoice,{
+        this.$http.post("/sample/save",this.userChoice,{
         })
         .then((response)=>{
             this.$notify({
