@@ -38,14 +38,13 @@
                         >
                           <i class="el-icon-upload"></i>
                           <div class="el-dragger__text">将文件拖到此处，或<em>点击上传</em></div>
-                          <div class="el-upload__tip" slot="tip">目前仅可以接受.txt格式的文件</div>
                         </el-upload>
                         <el-input
                             v-else
                             class="own_textarea"
                             style="display: inline-block"
                             type="textarea"
-                            placeholder=""
+                            placeholder="请以换行的方式分割关键词"
                             :autosize="{minRows: 8, maxRows: 10}"
                             v-model="userChoice.text">
                         </el-input>
@@ -90,12 +89,12 @@ export default {
         userChoice:{
             userId: this.$parent.curUser.userId,
             chosenCategories: [],
-            chosenTopic: -1,
-            text: ""
+            chosenTopic: -1
         },
         topics:[],
         categories:[],
         fullscreenLoading: false,
+        shouldEdit: false,
         shouldUpload: true
         // uploadFunc: null,
     }
@@ -141,19 +140,19 @@ export default {
     // },
 
     saveFileData(file){
-        this.shouldUpload = false;
+        // this.shouldUpload = false;
         // debugger;
         // console.log(file);
         // this.userChoice.file = file;
         // return false;
-        var _this = this;
-        var reader = new FileReader();
-        var str = "";
-        reader.onload = function () {
-            that.userChoice.text = this.result;
-        };
-        reader.readAsText(file);
-
+        // var _this = this;
+        // var reader = new FileReader();
+        // var str = "";
+        // reader.onload = function () {
+        //     that.userChoice.text = this.result;
+        // };
+        // reader.readAsText(file);
+        //
         if(file)
           this.showMessage("加载成功，请上传！","success");
         const that = this;
@@ -164,10 +163,13 @@ export default {
     },
     cancelUpload() {
         this.shouldUpload = true;
+        this.shouldEdit = false;
+        this.userChoice.text = "";
     },
     editWord() {
         this.userChoice.text = '';
         this.shouldUpload = false;
+        this.shouldEdit = true;
     },
     handleUploadState(state){
         if(state==="success")
@@ -182,21 +184,26 @@ export default {
 
           return;
         }
-        if(!this.userChoice.text.trim().length) {
-            this.showMessage("请上传文件或手动编辑","error");
-            return;
-        }
-        // this.$emit("upload");
-        this.$http.post("/sample/save",this.userChoice,{
-        })
-        .then((response)=>{
-            this.$notify({
-                type: "success",
-                message: "关键词录入成功"
-            })
-        },((err)=>{
 
-        }))
+        if(this.shouldEdit) {
+            this.$http.post("/sample/save",{
+                chosenCategories: this.userChoice.chosenCategories,
+                chosenTopic: this.userChoice.chosenTopic,
+                text: this.userChoice.text
+            })
+            .then((response)=>{
+                this.$notify({
+                    type: "success",
+                    message: "关键词录入成功"
+                })
+            },((err)=>{
+
+            }))
+        } else {
+            this.$emit("upload");
+        }
+
+
 
 /*
         const formData = new FormData();
