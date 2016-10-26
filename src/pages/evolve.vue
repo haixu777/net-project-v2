@@ -2,13 +2,14 @@
 
      <div id="evolve-main">
 		<div class="left-container left">
-			<div v-for="title in titleList" class="title-container">
+			<div v-for="(title,name) in titleList" class="title-container">
 				<div @click="title_click(title)" class="title-div pointer">
 					{{title.name}}
-					<div @click.stop.prevent="add_topic(title)" style="float:right;padding-right:10px;">+</div>
+					<div @click.stop.prevent="add_topic(title)" class="title-button" style="float:right;padding-right:10px;">+</div>
 				</div>
-				<div @click="topic_click(topic,titleList)" v-for="topic in title.children" v-show="title.showflag" class="topic-div pointer" :class="{'topic-current':topic.isCurrent}">
+				<div @click="topic_click(topic,titleList)" v-for="(topic, key) in title.children" v-show="title.showflag" class="topic-div pointer" :class="{'topic-current':topic.isCurrent}">
 					- {{topic.name}}
+					<div @click.stop.prevent="del_topic(topic,name,key)" class="title-button" style="float:right;padding-right:20px;">×</div>
 				</div>
 			</div>
 		</div>
@@ -117,6 +118,25 @@ export default {
 				}
 			}
 			topic.isCurrent = true;
+		},
+		del_topic:function(topic,title,key){
+			if(confirm("确定要删除专题：" + topic.name + " 吗？")){
+				this.$http.get('keyword/delTopic',{
+					params:{
+						id:topic.id
+					}
+				}).then((response) => {
+					// success callback
+					if(response.body.flag){
+						alert("删除成功");
+						this.titleList[title]["children"].splice(key,1);
+					}						
+				}, (response) => {
+					// error callback
+					alert("专题删除错误");
+				});	
+			}
+						
 		}
 	}
 };
@@ -177,6 +197,10 @@ export default {
 .topic-current{
 	color:white;
 	background:steelblue;
+}
+
+.title-button:hover{
+	color:red;
 }
 
 /*content*/
