@@ -7,7 +7,7 @@ import {keyword} from "../assets/js/keyword.js";
 
 export default {
 	name:"EvolveExport",
-	props:["id"],
+	props:["id","topic"],
 	data () {
         return {
 			export_system:[]
@@ -31,9 +31,10 @@ export default {
 				"container":"keyword",
 				"id":this.id,
 				"export_system":this.export_system,
-				"load_title":this.load_title
+				"load_title":this.load_title,
+				"topic":this.topic
 			}
-			creat_keyword(o);	
+			creat_keyword(o);
 		}, (response) => {
 			// error callback
 		});
@@ -65,14 +66,15 @@ export default {
 				"container":"keyword",
 				"id":this.id,
 				"export_system":this.export_system,
-				"load_title":this.load_title
+				"load_title":this.load_title,
+				"topic":this.topic
 			}
 			creat_keyword(o);
 		}
 	}
 };
 
-function creat_keyword(o){	
+function creat_keyword(o){
 	keyword(o);
 }
 </script>
@@ -82,7 +84,7 @@ function creat_keyword(o){
 	width:100%;
 	height:3rem;
 	line-height:3rem;
-	
+
 	padding-left:10px;
 	font-family:"微软雅黑";
 }
@@ -100,13 +102,13 @@ function creat_keyword(o){
 }
 
 .keyword-table thead{
-	
+
 }
 
 .keyword-table thead th{
 	width:auto;
 	height:3rem;
-	
+
 	font-family:"黑体";
 	background:	#F7F7F7;
 }
@@ -114,7 +116,7 @@ function creat_keyword(o){
 .keyword-table tbody td{
 	width:auto;
 	height:3rem;
-	
+
 	font-family:"微软雅黑";
 	border:1px solid #d3d7d4;
 	text-align:center;
@@ -149,7 +151,7 @@ input{
 	height:100%;
 	overflow:auto;
 	resize:none;
-	
+
 	font-family:"微软雅黑";
 	font-size:0.8rem;
 	border-left:1px solid #d3d7d4;
@@ -161,7 +163,7 @@ input{
 	height:90%;
 	overflow:auto;
 	resize:none;
-	
+
 	font-family:"微软雅黑";
 	font-size:0.8rem;
 }
@@ -225,7 +227,7 @@ input{
 	background:white;
 	border:1px solid black;
 	border-radius:20px;
-	
+
 	padding:20px;
 	overflow:auto;
 }
@@ -247,15 +249,15 @@ input{
 	display:inline;
 	border:1px solid gray;
 	border-radius:5px;
-	
+
 	padding-left:20px;
 	padding-right:20px;
-	
+
 	height:30px;
 	line-height:30px;
-	
+
 	font-family:"微软雅黑";
-	
+
 	cursor:pointer;
 	float:right;
 }
@@ -267,7 +269,7 @@ input{
 input[type=checkbox]{
 	width:20px;
 	height:20px;
-	
+
 	vertical-align:middle;
 	-webkit-appearance: checkbox;
 }
@@ -275,7 +277,7 @@ input[type=checkbox]{
 input[type=radio]{
 	width:20px;
 	height:20px;
-	
+
 	vertical-align:middle;
 	-webkit-appearance: radio;
 }

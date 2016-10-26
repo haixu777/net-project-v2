@@ -28,7 +28,7 @@
                             <li v-for="item in categories" :key="item" :class="[ 'tag', { active: parseInt(item.id)===filterCategory }]"
                                 @click="setFilter('filterCategory',item.id)">
                             {{item.name}}</li>
-                        </ul> <span class="tag-more">展开<i class="iconfont arrow-closed"></i></span>
+                        </ul> <!-- <span class="tag-more">展开<i class="iconfont arrow-closed"></i></span> -->
 
                     </div>
                 </section>
@@ -41,7 +41,7 @@
                                 @click="setFilter('filterContent',id)">
                                 {{statusDict[id]}}
                             </li>
-                        </ul> <span class="tag-more">展开<i class="iconfont arrow-closed"></i></span>
+                        </ul> <!-- <span class="tag-more">展开<i class="iconfont arrow-closed"></i></span> -->
 
                     </div>
                 </section>

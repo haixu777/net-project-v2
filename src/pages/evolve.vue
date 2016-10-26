@@ -18,7 +18,7 @@
 				<div v-for="tab in tabList" @click="tab_click(tab,tabList)" class="left right-tab-div pointer" :class="{'tab-current':tab.isCurrent}">{{tab.name}}</div>
 			</div>
 			<div class="right-content">
-				<evolve-export v-show="tabList[0].isCurrent" :id="topicCurrent"></evolve-export>
+				<evolve-export v-show="tabList[0].isCurrent" :id="topicCurrent" :topic="titleCurrent"></evolve-export>
 				<evolve-analysis v-show="tabList[1].isCurrent" :id="topicCurrent"></evolve-analysis>
 			</div>
 		</div>
@@ -44,7 +44,8 @@ export default {
 					isCurrent:false
 				}
 			],
-			topicCurrent:""
+			topicCurrent:"",
+            titleCurrent:""
 		}
 	},
 	created(){
@@ -61,6 +62,12 @@ export default {
 				}
 			}
 			this.titleList = temp;
+
+            if(temp.length != 0)
+                this.titleCurrent = temp[0].id;
+            else {
+                alert("无可用专题");
+            }
 		}, (response) => {
 			// error callback
 			alert("专题加载错误");
@@ -71,9 +78,9 @@ export default {
 		EvolveAnalysis
 	},
 	computed:{
-		
+
 	},
-	
+
 	methods:{
 		title_click:function(title){
 			title.showflag = !title.showflag;
@@ -81,29 +88,30 @@ export default {
 		add_topic:function(title){
 			this.tabList[0].isCurrent = true;
 			this.tabList[1].isCurrent = false;
-			
+
 			if(this.topicCurrent == ""){
 				if(confirm("是否放弃当前未保存的专题"))
 					this.topicCurrent = null;
-				else 
+				else
 					return;
 			}
 			else
 				this.topicCurrent = "";
+            this.titleCurrent = title.id;
 		},
 		tab_click:function(tab,tabList){
 			if(tab.name != "关键词配置" && this.topicCurrent == ""){
 				alert("请选择专题");
 				return;
-			}				
+			}
 			for(var key in tabList){
 				tabList[key].isCurrent = false;
 			}
-			tab.isCurrent = true;			
+			tab.isCurrent = true;
 		},
 		topic_click:function(topic,titleList){
 			this.topicCurrent = topic.id;
-			
+
 			for(var key in titleList){
 				for(var obj in titleList[key].children){
 					titleList[key].children[obj].isCurrent = false;
@@ -144,7 +152,7 @@ export default {
 .left-container{
 	width:20%;
 	height:100%;
-	
+
 	padding:20px;
 	overflow:auto;
 }
@@ -153,7 +161,7 @@ export default {
 	padding:20px;
 	width:80%;
 	height:100%;
-	
+
 	display:flex;
 	flex-direction:column;
 }
@@ -168,21 +176,21 @@ export default {
 	font-size:1rem;
 	font-family:"黑体";
 	color:white;
-	
+
 	background:#3f3f3f;
 }
 
 .topic-div{
 	padding:5px 0px 5px 20px;
-	
+
 	font-size:1rem;
 	font-family:"微软雅黑";
 	color:black;
-	
+
 	background:white;
 }
 
-.topic-div:hover{	
+.topic-div:hover{
 	background:steelblue;
 }
 
@@ -207,7 +215,7 @@ export default {
 	font-family:"微软雅黑";
 	padding:5px 20px 5px 20px;
 	border-bottom:1px solid gray;
-	
+
 }
 
 .right-tab-div:hover{

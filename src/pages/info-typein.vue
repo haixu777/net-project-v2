@@ -24,6 +24,7 @@
                     <div class="file-upload form-item">
                         <span class="tag-key">关键词</span>
                         <el-upload
+                          v-if="shouldUpload"
                           action="/sample/upload"
                           type="drag"
                           accept =".xlsx,.doc,.txt,.xls,.docx"
@@ -37,13 +38,21 @@
                         >
                           <i class="el-icon-upload"></i>
                           <div class="el-dragger__text">将文件拖到此处，或<em>点击上传</em></div>
-                          <div class="el-upload__tip" slot="tip">仅可以接受.doc,.docx,.xls,.xlsx,.txt格式的文件</div>
                         </el-upload>
+                        <el-input
+                            v-else
+                            class="own_textarea"
+                            style="display: inline-block"
+                            type="textarea"
+                            placeholder="请以换行的方式分割关键词"
+                            :autosize="{minRows: 8, maxRows: 10}"
+                            v-model="userChoice.text">
+                        </el-input>
                     </div>
 
                     <div class="button-group form-item">
-                        <el-button size="small" >取消</el-button>
-
+                        <el-button v-show="shouldUpload" size="small" type="success" @click.native="editWord">手动编辑</el-button>
+                        <el-button v-show="!shouldUpload" size="small" @click.native="cancelUpload">取消</el-button>
                         <el-tooltip class="item" effect="dark" content="请确保分类及主题已选择" placement="top-start">
                             <el-button type="primary" size="small" :disabled="isUploadDisabled" @click.native="typeinWords">上传</el-button>
                         </el-tooltip>
@@ -85,6 +94,8 @@ export default {
         topics:[],
         categories:[],
         fullscreenLoading: false,
+        shouldEdit: false,
+        shouldUpload: true
         // uploadFunc: null,
     }
   },
@@ -115,6 +126,7 @@ export default {
         console.log(file, fileList);
     },
     handlePreview(file) {
+        console.log(file);
         this.showMessage("文件上传成功","success");
     },
 
@@ -128,20 +140,37 @@ export default {
     // },
 
     saveFileData(file){
-
+        // this.shouldUpload = false;
         // debugger;
         // console.log(file);
         // this.userChoice.file = file;
         // return false;
+        // var _this = this;
+        // var reader = new FileReader();
+        // var str = "";
+        // reader.onload = function () {
+        //     that.userChoice.text = this.result;
+        // };
+        // reader.readAsText(file);
+        //
         if(file)
-          this.showMessage("文件上传成功","success");
+          this.showMessage("加载成功，请上传！","success");
         const that = this;
         return new Promise((resolve,reject)=>{
             that.$once("upload",resolve);
         });
 
     },
-
+    cancelUpload() {
+        this.shouldUpload = true;
+        this.shouldEdit = false;
+        this.userChoice.text = "";
+    },
+    editWord() {
+        this.userChoice.text = '';
+        this.shouldUpload = false;
+        this.shouldEdit = true;
+    },
     handleUploadState(state){
         if(state==="success")
             this.showMessage("关键词录入成功","success");
@@ -156,7 +185,25 @@ export default {
           return;
         }
 
-        this.$emit("upload");
+        if(this.shouldEdit) {
+            this.$http.post("/sample/save",{
+                chosenCategories: this.userChoice.chosenCategories,
+                chosenTopic: this.userChoice.chosenTopic,
+                text: this.userChoice.text
+            })
+            .then((response)=>{
+                this.$notify({
+                    type: "success",
+                    message: "关键词录入成功"
+                })
+            },((err)=>{
+
+            }))
+        } else {
+            this.$emit("upload");
+        }
+
+
 
 /*
         const formData = new FormData();
@@ -206,5 +253,7 @@ export default {
 </script>
 
 <style>
-
+.own_textarea textarea {
+    width: 360px;
+}
 </style>
