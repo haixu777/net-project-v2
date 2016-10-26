@@ -7,6 +7,7 @@ var keyword = function(option){
 	var _row = [];
 	var _system = option.export_system;
 	var choseSystem = [];
+	var save_flag = false;
 	
 	(function _init(){
 		var c = $("#"+_container);
@@ -103,43 +104,51 @@ var keyword = function(option){
 		if(choseSystem.length == 0)
 			alert("请配置下发系统");
 		else{
-			var tempObject = {};
-			var temp = [];
-			for(var i=0;i<_row.length;i++){
-				var data = _row[i].total();
-				if(data["去除词"].length != 0 && data["关键词"].length != 0){
-					if(data["关键词"][0].length != 0)
-						temp.push(data);
-				}			
-			}
-
-			var tempSystem = [];
-			for(var i=0;i<choseSystem.length;i++){
-				tempSystem.push(choseSystem[i].id);
-			}
-			
-			tempObject.data = temp;
-			$.ajax({
-				url:"/keyword/saveKeyword",
-				type:"post",
-				contentType:'application/json',
-				data:JSON.stringify({
-					id:_id,
-					keywordPackage: tempObject,
-					system:tempSystem
-				}),
-				success:function(d){
-					if(typeof(d) == "string")
-						d = JSON.parse(d);
-					if(d.flag)
-						alert("保存数据成功");
-					else
-						alert("保存数据错误");
-				},
-				error:function(){
-					alert("保存数据错误");
+			if(!save_flag){
+				var tempObject = {};
+				var temp = [];
+				for(var i=0;i<_row.length;i++){
+					var data = _row[i].total();
+					if(data["去除词"].length != 0 && data["关键词"].length != 0){
+						if(data["关键词"][0].length != 0)
+							temp.push(data);
+					}			
 				}
-			});
+
+				var tempSystem = [];
+				for(var i=0;i<choseSystem.length;i++){
+					tempSystem.push(choseSystem[i].id);
+				}
+				
+				tempObject.data = temp;
+				$.ajax({
+					url:"/keyword/saveKeyword",
+					type:"post",
+					contentType:'application/json',
+					data:JSON.stringify({
+						id:_id,
+						keywordPackage: tempObject,
+						system:tempSystem
+					}),
+					success:function(d){
+						save_flag = false;
+						if(typeof(d) == "string")
+							d = JSON.parse(d);
+						if(d.flag)
+							alert("保存数据成功");
+						else
+							alert("保存数据错误");
+					},
+					error:function(){
+						save_flag = false;
+						alert("保存数据错误");
+					}
+				});
+			}else{
+				alert("数据保存中，请勿连续点击");
+			}
+			save_flag = true;
+
 		}
 	}
 	
@@ -174,40 +183,49 @@ var keyword = function(option){
 		}
 	}
 	
-	function save(){
-		var tempObject = {};
-		var temp = [];
-		for(var i=0;i<_row.length;i++){
-			var data = _row[i].total();
-			if(data["去除词"].length != 0 && data["关键词"].length != 0){
-				if(data["关键词"][0].length != 0)
-					temp.push(data);
-			}			
-		}
-
-		tempObject.data = temp;
-
-		$.ajax({
-			url:"/keyword/saveKeyword",
-			type:"post",
-			contentType:'application/json; charset=utf-8',
-			data:JSON.stringify({
-				id:_id,
-				keywordPackage: tempObject,
-				system:[]
-			}),
-			success:function(d){
-				if(typeof(d) == "string")
-					d = JSON.parse(d);
-				if(d.flag)
-					alert("保存数据成功");
-				else
-					alert("保存数据错误");
-			},
-			error:function(){
-				alert("保存数据错误");
+	function save(){		
+		if(!save_flag){
+			var tempObject = {};
+			var temp = [];
+			for(var i=0;i<_row.length;i++){
+				var data = _row[i].total();
+				if(data["去除词"].length != 0 && data["关键词"].length != 0){
+					if(data["关键词"][0].length != 0)
+						temp.push(data);
+				}			
 			}
-		});
+
+			tempObject.data = temp;
+
+			$.ajax({
+				url:"/keyword/saveKeyword",
+				type:"post",
+				contentType:'application/json; charset=utf-8',
+				data:JSON.stringify({
+					id:_id,
+					keywordPackage: tempObject,
+					system:[]
+				}),
+				success:function(d){
+					save_flag = false;
+					if(typeof(d) == "string")
+						d = JSON.parse(d);
+					if(d.flag){
+						option.load_title();
+						alert("保存数据成功");
+					}
+					else
+						alert("保存数据错误");
+				},
+				error:function(){
+					save_flag = false;
+					alert("保存数据错误");
+				}
+			});
+		}else{
+			alert("数据保存中，请勿连续点击");
+		}
+		save_flag = true;
 	}
 	
 	function export_keyword(){

@@ -30,7 +30,8 @@ export default {
 			var o = {
 				"container":"keyword",
 				"id":this.id,
-				"export_system":this.export_system
+				"export_system":this.export_system,
+				"load_title":this.load_title
 			}
 			creat_keyword(o);	
 		}, (response) => {
@@ -38,14 +39,33 @@ export default {
 		});
 	},
 	methods:{
-		
+		load_title:function(){
+			var temp = [];
+			this.$http.get('keyword/loadTitle',{
+
+			}).then((response) => {
+				// success callback
+				temp = response.body.titleList;
+				for(var key in temp){
+					temp[key].showflag = false;
+					for(var topic in temp[key].children){
+						temp[key].children[topic].isCurrent = false;
+					}
+				}
+				this.$parent.titleList = temp;
+			}, (response) => {
+				// error callback
+				alert("专题加载错误");
+			});
+		}
 	},
 	watch:{
 		"id":function(){
 			var o = {
 				"container":"keyword",
 				"id":this.id,
-				"export_system":this.export_system
+				"export_system":this.export_system,
+				"load_title":this.load_title
 			}
 			creat_keyword(o);
 		}

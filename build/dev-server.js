@@ -64,6 +64,10 @@ app.get("/keyword/loadTitle",function(req,res){
     res.json(temp);
 });
 
+app.get("/keyword/delTopic",function(req,res){
+    res.json({flag:true});
+});
+
 app.post("/keyword/turnKeyword",function(req,res){
     var temp = JSON.parse(fs.readFileSync("./json/yansheng.json"));
     res.json(temp);
